@@ -1,23 +1,35 @@
 from fastapi import APIRouter, HTTPException
 from gateway.schemas import QueryRequest, QueryResponse
+from orchestrator.main import AgentOrchestrator # <--- IMPORT THE BRAIN
 import uuid
 
 router = APIRouter()
+
+# Initialize the brain once (Singleton pattern)
+orchestrator = AgentOrchestrator()
 
 @router.post("/query", response_model=QueryResponse)
 async def submit_query(request: QueryRequest):
     """
     Endpoint to receive analysis requests.
     """
-    # 1. Generate a unique ID for this request (Traceability)
     query_id = str(uuid.uuid4())
-    
     print(f"Received Request {query_id}: {request.text}")
 
-    # 2. TODO: Forward to Orchestrator (Stage 3)
-    # For now, we just acknowledge receipt.
-    return QueryResponse(
-        query_id=query_id,
-        status="processing",
-        result={"message": "Gateway received your query. Orchestrator is offline (Stage 3 coming soon)."}
-    )
+    # --- REAL INTEGRATION ---
+    try:
+        # Pass the text to the brain
+        result = orchestrator.run_pipeline(request.text)
+        
+        return QueryResponse(
+            query_id=query_id,
+            status="success",
+            result=result
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        return QueryResponse(
+            query_id=query_id,
+            status="error",
+            result={"error": str(e)}
+        )
