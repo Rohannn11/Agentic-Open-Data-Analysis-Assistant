@@ -13,3 +13,14 @@ class AnalysisPlan(BaseModel):
     target_indicator: str       # API Code: "NY.GDP.MKTP.KD.ZG"
     years: List[int]            # [2022, 2023]
     operation: str = "trend"    # "trend" or "correlation" (future proofing)
+    
+class AnalysisResult(BaseModel):
+    """
+    The output of the Analyst Agent.
+    Contains hard mathematical facts.
+    """
+    min_value: float
+    max_value: float
+    average: float
+    trend_direction: str  # "increasing", "decreasing", "stable"
+    growth_rate: float    # Simple percentage growth (Start to End)    
