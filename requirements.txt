@@ -5,3 +5,4 @@ pandas>=2.0.0,<3.0.0
 duckdb>=1.4.4
 pydantic>=2.12.5          # Updated to latest stable in 2.x series
 python-dotenv>=1.2.1     # Updated to latest stable
+google-generativeai>=0.3.0
