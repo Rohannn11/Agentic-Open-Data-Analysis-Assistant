@@ -38,3 +38,6 @@ class AnalysisResult(BaseModel):
     growth_rate: float
     chart_data: Optional[ChartData] = None
     data_sources: List[str] # Essential for the Narrator to know what it's looking at
+    chart_data: Optional[ChartData] = None
+    summary_chart_data: Optional[ChartData] = None # <--- Add this
+    data_sources: List[str]

@@ -36,7 +36,7 @@
                     <span class="metric-value" id="valAvg">--</span>
                 </div>
                 <div class="metric-card">
-                    <span class="metric-label">Growth (Total)</span>
+                    <span class="metric-label">Net Change</span>
                     <span class="metric-value" id="valGrowth">--</span>
                 </div>
                 <div class="metric-card">
@@ -49,11 +49,26 @@
                 </div>
             </div>
 
-            <div class="card chart-card">
-                <div class="card-header">
-                    <h2>Trend Visualization</h2>
-                    <span class="badge" id="sourceBadge">Source: --</span>
+            <div class="charts-container">
+                
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2>Trend Timeline</h2>
+                        <span class="badge" id="sourceBadge">Source: --</span>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="lineChart"></canvas> </div>
                 </div>
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2>Average Comparison</h2>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="barChart"></canvas> </div>
+                </div>
+
+            </div>
                 <div class="chart-container">
                     <canvas id="dataChart"></canvas>
                 </div>

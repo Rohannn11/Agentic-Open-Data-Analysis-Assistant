@@ -177,3 +177,16 @@ button:hover { background: #4f46e5; }
 
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 #loading { text-align: center; margin: 40px 0; }
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive split */
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 300px; /* Fixed height for consistency */
+    width: 100%;
+}
