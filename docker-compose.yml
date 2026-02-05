@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # SERVICE 1: The Python API
+  backend:
+    build: .
+    container_name: data_agent_backend
+    ports:
+      - "8000:8000"  # Maps localhost:8000 to container:8000
+    env_file:
+      - .env         # Passes your API Keys automatically
+    volumes:
+      - .:/app       # OPTIONAL: Syncs code so you don't have to rebuild on every change
+    networks:
+      - agent_network
+
+  # SERVICE 2: The Dashboard
+  frontend:
+    build: ./frontend
+    container_name: data_agent_frontend
+    ports:
+      - "3000:80"    # Maps localhost:3000 to Nginx port 80
+    depends_on:
+      - backend      # Waits for backend to start
+    networks:
+      - agent_network
+
+# Create a private network for them to talk
+networks:
+  agent_network:
+    driver: bridge
