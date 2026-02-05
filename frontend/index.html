@@ -30,15 +30,40 @@
 
         <div id="results" class="hidden">
             
-            <div class="card narrative-card">
-                <h2>AI Insight</h2>
-                <div id="narrativeText"></div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-label">Average</span>
+                    <span class="metric-value" id="valAvg">--</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Growth (Total)</span>
+                    <span class="metric-value" id="valGrowth">--</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Lowest</span>
+                    <span class="metric-value" id="valMin">--</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Highest</span>
+                    <span class="metric-value" id="valMax">--</span>
+                </div>
             </div>
 
             <div class="card chart-card">
-                <h2>Data Visualization</h2>
-                <canvas id="dataChart"></canvas>
+                <div class="card-header">
+                    <h2>Trend Visualization</h2>
+                    <span class="badge" id="sourceBadge">Source: --</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dataChart"></canvas>
+                </div>
             </div>
+
+            <div class="card narrative-card">
+                <h2>AI Executive Summary</h2>
+                <div id="narrativeText" class="markdown-content"></div>
+            </div>
+        </div>
 
             <div class="meta-info">
                 <span>Source: <b id="sourceTag"></b></span>

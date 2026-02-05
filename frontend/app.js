@@ -24,22 +24,34 @@ async function submitQuery() {
 
         const data = await response.json();
 
-        if (data.status === "error") {
-            throw new Error(data.result.error || "Unknown error");
+        // Handle potential backend errors explicitly
+        if (data.status === "error" || (data.result && data.result.type === "error")) {
+            throw new Error(data.result.message || "Unknown error occurred in the backend.");
         }
 
         // 2. Extract Data
         const result = data.result.data; // The 'data' block from Orchestrator
-        
-        // 3. Render Narrative
-        document.getElementById('narrativeText').innerText = result.narrative;
-        
-        // 4. Render Metadata
-        document.getElementById('sourceTag').innerText = result.source;
-        document.getElementById('trendTag').innerText = result.analysis.trend_direction.toUpperCase();
+        const analysis = result.analysis; // Shortcut for easy access
 
-        // 5. Render Chart
-        renderChart(result.analysis.chart_data);
+        // 3. Render Key Metrics (The new Analytics Grid)
+        // We handle missing data gracefully with "N/A"
+        document.getElementById('valAvg').innerText = analysis.average ?? "N/A";
+        document.getElementById('valGrowth').innerText = (analysis.growth_rate ?? 0) + "%";
+        document.getElementById('valMin').innerText = analysis.min_value ?? "N/A";
+        document.getElementById('valMax').innerText = analysis.max_value ?? "N/A";
+
+        // 4. Render Source Citation Badge
+        // Combines the API Source (e.g. WORLDBANK) with the Dataset Label for professional context
+        const datasetLabel = analysis.chart_data && analysis.chart_data.datasets.length > 0 
+                             ? analysis.chart_data.datasets[0].label 
+                             : "Unknown Data";
+        document.getElementById('sourceBadge').innerText = `${result.source} [${datasetLabel}]`;
+
+        // 5. Render Narrative (Parsed with Marked.js for formatting)
+        document.getElementById('narrativeText').innerHTML = marked.parse(result.narrative);
+
+        // 6. Render Chart
+        renderChart(analysis.chart_data);
 
         // Show Results
         document.getElementById('loading').classList.add('hidden');
@@ -50,13 +62,14 @@ async function submitQuery() {
         const errorDiv = document.getElementById('error');
         errorDiv.innerText = `Error: ${err.message}`;
         errorDiv.classList.remove('hidden');
+        console.error("Full Error:", err);
     }
 }
 
 function renderChart(chartData) {
     const ctx = document.getElementById('dataChart').getContext('2d');
     
-    // Destroy previous chart if exists
+    // Destroy previous chart if exists to prevent "glitching" overlays
     if (chartInstance) {
         chartInstance.destroy();
     }
@@ -69,21 +82,39 @@ function renderChart(chartData) {
             labels: chartData.labels,
             datasets: chartData.datasets.map(ds => ({
                 ...ds,
-                borderColor: '#6366f1', // Force our theme color
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                tension: 0.3, // Smooth curves
+                borderColor: '#6366f1', // Force our Indigo theme color
+                backgroundColor: 'rgba(99, 102, 241, 0.1)', // Light indigo fill
+                tension: 0.3, // Smooth curves (Bezier)
                 borderWidth: 2,
-                pointRadius: 4
+                pointRadius: 4,
+                pointHoverRadius: 6
             }))
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false, // Allows chart to fill the container height
             plugins: {
-                legend: { display: false } // Hide legend for cleaner look
+                legend: { display: false }, // Clean look, label is in the header
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1e293b',
+                    titleColor: '#e2e8f0',
+                    bodyColor: '#e2e8f0',
+                    borderColor: '#334155',
+                    borderWidth: 1
+                }
             },
             scales: {
-                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                y: { 
+                    grid: { color: '#334155' }, 
+                    ticks: { color: '#94a3b8' },
+                    beginAtZero: false 
+                },
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: '#94a3b8' } 
+                }
             }
         }
     });

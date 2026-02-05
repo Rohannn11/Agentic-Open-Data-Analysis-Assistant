@@ -25,8 +25,11 @@ class AgentOrchestrator:
             stats = self.analyst.analyze(raw_data)
             
             # 4. Narration
+            # We pass the LISTs from the plan. The Narrator handles the logic.
             narrative = self.narrator.summarize(
-                plan.target_country, plan.target_indicator, stats.model_dump()
+                country=plan.target_countries,    # Pass the list ["IND", "CHN"]
+                indicator=plan.target_indicators, # Pass the list
+                stats=stats.model_dump()
             )
             
             return {

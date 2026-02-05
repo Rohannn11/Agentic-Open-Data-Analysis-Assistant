@@ -82,6 +82,83 @@ button:hover { background: #4f46e5; }
     font-size: 16px;
 }
 
+/* ... existing styles ... */
+
+/* New Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.metric-card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #334155;
+}
+
+.metric-label {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+/* Citation Badge */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.badge {
+    background: #334155;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Markdown Content Styling (Fixes the raw text look) */
+.markdown-content h1, .markdown-content h2, .markdown-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+}
+
+.markdown-content p {
+    margin-bottom: 15px;
+    line-height: 1.7;
+    color: #cbd5e1;
+}
+
+.markdown-content ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.markdown-content li {
+    margin-bottom: 8px;
+    color: #cbd5e1;
+}
+
+.markdown-content strong {
+    color: var(--accent-color); /* Highlight key facts in color */
+}
+
 /* Utilities */
 .hidden { display: none; }
 .meta-info { display: flex; gap: 20px; font-size: 14px; color: #94a3b8; }

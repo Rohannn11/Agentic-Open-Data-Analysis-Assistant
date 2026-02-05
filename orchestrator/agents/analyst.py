@@ -1,59 +1,63 @@
 import statistics
+from typing import List
 from data.canonical import IndicatorSeries
 from orchestrator.schemas import AnalysisResult, ChartData, ChartDataset
 
 class AnalystAgent:
-    def analyze(self, data: IndicatorSeries) -> AnalysisResult:
-        """
-        Performs stats AND formats data for Chart.js
-        """
-        print(f"[Analyst] Processing {len(data.data)} points for {data.country}...")
+    def analyze(self, data_list: List[IndicatorSeries]) -> AnalysisResult:
         
-        # 1. Extract values
-        values = [pt.value for pt in data.data]
-        years = [str(pt.year) for pt in data.data] # Chart labels must be strings
-        
-        # 2. Handle Empty Data (Robustness check we added earlier)
-        if not values:
+        if not data_list:
             return AnalysisResult(
-                min_value=0.0, max_value=0.0, average=0.0,
-                trend_direction="no_data", growth_rate=0.0,
-                chart_data=None
+                min_value=0, max_value=0, average=0, trend_direction="no_data", 
+                growth_rate=0, chart_data=None, data_sources=[]
             )
 
-        # 3. Calculate Stats
-        min_val = min(values)
-        max_val = max(values)
-        avg_val = statistics.mean(values)
+        # 1. Prepare Visualization (Multi-Line)
+        datasets = []
+        all_sources = []
         
-        start_val = values[0]
-        end_val = values[-1]
+        # Dynamic Color Palette (Indigo, Emerald, Amber, Rose, Violet, Cyan)
+        colors = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"]
         
-        # Simple trend logic
-        if end_val > start_val * 1.05:
-            trend = "increasing"
-        elif end_val < start_val * 0.95:
-            trend = "decreasing"
-        else:
-            trend = "stable"
+        for idx, series in enumerate(data_list):
+            values = [pt.value for pt in series.data]
+            if not values: continue
+            
+            # Create Citation (e.g., "WORLDBANK: GDP (IND)")
+            all_sources.append(f"{series.source}: {series.indicator} ({series.country})")
+            
+            # Add Line to Chart
+            datasets.append(ChartDataset(
+                label=f"{series.country} - {series.indicator}",
+                data=values,
+                borderColor=colors[idx % len(colors)], # Cycle through colors
+                fill=False
+            ))
+
+        # 2. Compute "Headline" Stats
+        # (For the Top Bar, we use the PRIMARY dataset - usually the first one requested)
+        primary_series = data_list[0]
+        p_values = [pt.value for pt in primary_series.data]
+        
+        min_val = min(p_values) if p_values else 0
+        max_val = max(p_values) if p_values else 0
+        avg_val = statistics.mean(p_values) if p_values else 0
+        
+        # Simple Trend Logic
+        trend = "stable"
+        if p_values:
+            if p_values[-1] > p_values[0]: trend = "increasing"
+            elif p_values[-1] < p_values[0]: trend = "decreasing"
             
         growth = 0.0
-        if start_val != 0:
-            growth = ((end_val - start_val) / abs(start_val)) * 100
+        if p_values and p_values[0] != 0:
+            growth = ((p_values[-1] - p_values[0]) / abs(p_values[0])) * 100
 
-        # 4. PREPARE CHART PAYLOAD (The New Part)
-        # We format strictly for the Frontend's expectation
-        chart = ChartData(
-            labels=years,
-            datasets=[
-                ChartDataset(
-                    label=f"{data.indicator} ({data.country})",
-                    data=values,
-                    borderColor="#4F46E5", # Professional Indigo
-                    fill=False
-                )
-            ]
-        )
+        # 3. Final Packaging
+        # We assume the Years are consistent across datasets for simplicity in this MVP
+        years = [str(pt.year) for pt in primary_series.data] if primary_series.data else []
+
+        chart = ChartData(labels=years, datasets=datasets)
 
         return AnalysisResult(
             min_value=round(min_val, 2),
@@ -61,5 +65,6 @@ class AnalystAgent:
             average=round(avg_val, 2),
             trend_direction=trend,
             growth_rate=round(growth, 2),
-            chart_data=chart # <--- Attached!
+            chart_data=chart,
+            data_sources=all_sources # <--- Full List of Sources
         )

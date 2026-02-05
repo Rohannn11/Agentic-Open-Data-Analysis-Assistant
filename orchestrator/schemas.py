@@ -13,31 +13,28 @@ class QueryResponse(BaseModel):
     result: dict | None = None
 
 class AnalysisPlan(BaseModel):
-    # ... (keep as is) ...
     original_query: str
     source: str
     topic: str
-    target_country: str
-    target_indicator: str
+    target_countries: List[str]   # e.g. ["IND", "CHN"]
+    target_indicators: List[str]  # e.g. ["NY.GDP.MKTP.KD.ZG"]
     years: List[int]
 
-# --- NEW VISUALIZATION SCHEMAS ---
 class ChartDataset(BaseModel):
     label: str
     data: List[float]
-    borderColor: str = "#4F46E5"
+    borderColor: str
     fill: bool = False
 
 class ChartData(BaseModel):
     labels: List[str]
     datasets: List[ChartDataset]
 
-# --- UPDATE ANALYSIS RESULT ---
 class AnalysisResult(BaseModel):
     min_value: float
     max_value: float
     average: float
     trend_direction: str
     growth_rate: float
-    # New Field (Optional, because sometimes there is no data)
     chart_data: Optional[ChartData] = None
+    data_sources: List[str] # Essential for the Narrator to know what it's looking at
