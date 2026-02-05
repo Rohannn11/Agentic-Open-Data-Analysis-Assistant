@@ -24,10 +24,10 @@ class IndicatorSeries(BaseModel):
     source: str      # e.g., "WORLDBANK" or "OECD"
     data: List[TimeSeriesPoint]
 
-    # OPTIONAL LEARNING: Validation logic
-    # This ensures we never get an empty dataset silently.
-    @field_validator('data')
-    def data_must_not_be_empty(cls, v):
-        if not v:
-            raise ValueError('IndicatorSeries must contain at least one data point')
-        return v
+    # # OPTIONAL LEARNING: Validation logic
+    # # This ensures we never get an empty dataset silently.
+    # @field_validator('data')
+    # def data_must_not_be_empty(cls, v):
+    #     if not v:
+    #         raise ValueError('IndicatorSeries must contain at least one data point')
+    #     return v

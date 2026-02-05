@@ -1,50 +1,65 @@
-from data.canonical import IndicatorSeries
-from orchestrator.schemas import AnalysisResult
 import statistics
+from data.canonical import IndicatorSeries
+from orchestrator.schemas import AnalysisResult, ChartData, ChartDataset
 
 class AnalystAgent:
     def analyze(self, data: IndicatorSeries) -> AnalysisResult:
         """
-        Performs statistical analysis on the series.
+        Performs stats AND formats data for Chart.js
         """
-        print(f"[Analyst] Computing stats for {data.country}...")
+        print(f"[Analyst] Processing {len(data.data)} points for {data.country}...")
         
+        # 1. Extract values
         values = [pt.value for pt in data.data]
+        years = [str(pt.year) for pt in data.data] # Chart labels must be strings
         
+        # 2. Handle Empty Data (Robustness check we added earlier)
         if not values:
-             # Handle empty data case safely
-             return AnalysisResult(
-                 min_value=0, max_value=0, average=0, 
-                 trend_direction="no_data", growth_rate=0
-             )
+            return AnalysisResult(
+                min_value=0.0, max_value=0.0, average=0.0,
+                trend_direction="no_data", growth_rate=0.0,
+                chart_data=None
+            )
 
-        # 1. Basic Stats
+        # 3. Calculate Stats
         min_val = min(values)
         max_val = max(values)
         avg_val = statistics.mean(values)
         
-        # 2. Determine Trend (Simple approach)
         start_val = values[0]
         end_val = values[-1]
         
-        if end_val > start_val * 1.05: # > 5% growth
+        # Simple trend logic
+        if end_val > start_val * 1.05:
             trend = "increasing"
-        elif end_val < start_val * 0.95: # > 5% decline
+        elif end_val < start_val * 0.95:
             trend = "decreasing"
         else:
             trend = "stable"
             
-        # 3. Calculate Growth Rate (Simple percentage change)
-        # Avoid division by zero
-        if start_val == 0:
-            growth = 0.0
-        else:
+        growth = 0.0
+        if start_val != 0:
             growth = ((end_val - start_val) / abs(start_val)) * 100
+
+        # 4. PREPARE CHART PAYLOAD (The New Part)
+        # We format strictly for the Frontend's expectation
+        chart = ChartData(
+            labels=years,
+            datasets=[
+                ChartDataset(
+                    label=f"{data.indicator} ({data.country})",
+                    data=values,
+                    borderColor="#4F46E5", # Professional Indigo
+                    fill=False
+                )
+            ]
+        )
 
         return AnalysisResult(
             min_value=round(min_val, 2),
             max_value=round(max_val, 2),
             average=round(avg_val, 2),
             trend_direction=trend,
-            growth_rate=round(growth, 2)
+            growth_rate=round(growth, 2),
+            chart_data=chart # <--- Attached!
         )

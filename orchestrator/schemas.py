@@ -1,26 +1,43 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+# --- Keep existing Request/Response classes ---
+class QueryRequest(BaseModel):
+    # ... (keep as is) ...
+    text: str
+
+class QueryResponse(BaseModel):
+    # ... (keep as is) ...
+    query_id: str
+    status: str
+    result: dict | None = None
+
 class AnalysisPlan(BaseModel):
-    """
-    The blueprint for the analysis. 
-    The Planner must produce this object.
-    """
+    # ... (keep as is) ...
     original_query: str
-    source: str                 # "WORLDBANK" or "OECD"
-    topic: str                  # e.g., "gdp", "unemployment"
-    target_country: str         # ISO code: "IND", "USA", "FRA"
-    target_indicator: str       # API Code: "NY.GDP.MKTP.KD.ZG"
-    years: List[int]            # [2022, 2023]
-    operation: str = "trend"    # "trend" or "correlation" (future proofing)
-    
+    source: str
+    topic: str
+    target_country: str
+    target_indicator: str
+    years: List[int]
+
+# --- NEW VISUALIZATION SCHEMAS ---
+class ChartDataset(BaseModel):
+    label: str
+    data: List[float]
+    borderColor: str = "#4F46E5"
+    fill: bool = False
+
+class ChartData(BaseModel):
+    labels: List[str]
+    datasets: List[ChartDataset]
+
+# --- UPDATE ANALYSIS RESULT ---
 class AnalysisResult(BaseModel):
-    """
-    The output of the Analyst Agent.
-    Contains hard mathematical facts.
-    """
     min_value: float
     max_value: float
     average: float
-    trend_direction: str  # "increasing", "decreasing", "stable"
-    growth_rate: float    # Simple percentage growth (Start to End)    
+    trend_direction: str
+    growth_rate: float
+    # New Field (Optional, because sometimes there is no data)
+    chart_data: Optional[ChartData] = None

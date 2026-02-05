@@ -23,7 +23,7 @@ class NarratorAgent:
         # --- HYBRID PROMPT DESIGN ---
         prompt = f"""
         You are an expert economic analyst. 
-        Write a brief report (3-4 sentences) on {country} regarding {indicator}.
+        Write a detailed report in proper points on {country} regarding {indicator}.
 
         SECTION 1: HARD FACTS (Strictly use ONLY these numbers)
         - Trend: {stats.get('trend_direction')}
@@ -34,10 +34,12 @@ class NarratorAgent:
         SECTION 2: CONTEXT (Use your own knowledge)
         - Briefly explain WHY this indicator matters for {country} and what are the factors influencing it.
         - Explain general information about the demographics of {country}.
+        - Discuss any known economic events or policies in {country} that could have impacted this indicator.
+        - Provide a professional analysis of what this trend means for the future outlook of {country}.
         - Do NOT invent specific numbers for this section, just qualitative context.
 
         OUTPUT FORMAT:
-        Combine the facts and context into a smooth, professional paragraph. Do not use headers or bullet points in the final output.
+        Combine the facts and context into a smooth, professional paragraph and bullet points.
         """
 
         try:
