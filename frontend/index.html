@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Data Analyst</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Agentic Data Analyst</h1>
+            <p>Powered by World Bank, OECD & Gemini AI</p>
+        </header>
+
+        <div class="search-box">
+            <input type="text" id="queryInput" placeholder="Ask a question (e.g., 'Unemployment in France')...">
+            <button onclick="submitQuery()">Analyze</button>
+        </div>
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p id="status-text">Dispatching Agents...</p>
+        </div>
+
+        <div id="results" class="hidden">
+            
+            <div class="card narrative-card">
+                <h2>AI Insight</h2>
+                <div id="narrativeText"></div>
+            </div>
+
+            <div class="card chart-card">
+                <h2>Data Visualization</h2>
+                <canvas id="dataChart"></canvas>
+            </div>
+
+            <div class="meta-info">
+                <span>Source: <b id="sourceTag"></b></span>
+                <span>Trend: <b id="trendTag"></b></span>
+            </div>
+        </div>
+
+        <div id="error" class="hidden"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
