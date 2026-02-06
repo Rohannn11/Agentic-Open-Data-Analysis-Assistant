@@ -36,16 +36,17 @@ class PlannerAgent:
            - Hourly Earnings: "EARNINGS"
 
         INSTRUCTIONS:
-        1. Extract ALL countries (ISO 3-letter codes). Default to ["USA"] if none.
-        2. Determine primary indicator code.
-        3. Context Rule: If GDP/Unemployment is asked, ALWAYS add "FP.CPI.TOTL.ZG" (Inflation) as secondary.
-        4. Select Source (WORLDBANK or OECD).
+        1. **Extraction**: Identify ALL countries mentioned. Convert to ISO 3-letter codes.
+        2. **Validation**: If NO country is found, set "target_countries" to [].
+        3. **Indicators**: Pick the most relevant indicator code.
+        4. **Context**: If GDP/Unemployment is asked, ALWAYS add "FP.CPI.TOTL.ZG" (Inflation) as secondary.
+        5. **Source**: Choose WORLDBANK or OECD.
 
         RETURN JSON ONLY:
         {{
-            "target_countries": ["IND", "USA"],
+            "target_countries": ["ISO_CODE_1", "ISO_CODE_2"], 
             "target_indicators": ["PRIMARY_CODE", "CONTEXT_CODE"],
-            "source": "WORLDBANK", 
+            "source": "WORLDBANK_OR_OECD", 
             "topic": "economic_analysis"
         }}
         """
@@ -57,6 +58,12 @@ class PlannerAgent:
 
             logger.info(f"AI Plan Generated: {data}")
 
+            # VALIDATION CHECK
+            # If the AI couldn't find any countries, we shouldn't default to USA.
+            # We should tell the user to be more specific.
+            if not data.get("target_countries"):
+                raise ValueError("No valid countries found in query. Please mention a country (e.g., 'India', 'France').")
+
             return AnalysisPlan(
                 original_query=query,
                 source=data["source"],
@@ -66,11 +73,11 @@ class PlannerAgent:
                 years=[2018, 2019, 2020, 2021, 2022]
             )
 
+        except json.JSONDecodeError:
+            logger.error("Planner failed to parse AI response.")
+            raise ValueError("System Error: Planner AI returned invalid JSON. Please try again.")
+            
         except Exception as e:
             logger.error(f"Planning failed: {e}", exc_info=True)
-            # Fallback
-            return AnalysisPlan(
-                original_query=query, source="WORLDBANK", topic="error_fallback",
-                target_countries=["USA"], target_indicators=["NY.GDP.MKTP.KD.ZG"], 
-                years=[2020, 2021, 2022]
-            )
+            # STOP THE FALLBACK. Raise the error so the Frontend sees it.
+            raise ValueError(f"Could not plan query: {str(e)}")
