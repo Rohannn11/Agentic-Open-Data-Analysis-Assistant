@@ -2,14 +2,17 @@ import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 
+from orchestrator.logger import get_logger
+
 load_dotenv()
+logger = get_logger("NarratorAgent")
 
 class NarratorAgent:
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
         if not self.api_key:
-            print("⚠️ WARNING: GEMINI_API_KEY not found.")
-            self.model = None
+           logger.warning("GEMINI_API_KEY missing. Narrator disabled.")
+           self.model = None
         else:
             genai.configure(api_key=self.api_key)
             self.model = genai.GenerativeModel('gemini-flash-latest')
@@ -45,7 +48,7 @@ class NarratorAgent:
         
         # Get primary country name for the prompt
         primary_country = list(unique_countries)[0] if unique_countries else "the target region"
-
+        logger.info(f"Generating narrative. Mode: {'COMPARISON' if is_comparison else 'DEEP_DIVE'}")
         # 2. SELECT PROMPT
         if is_comparison:
             # --- MODE A: COMPARATIVE (New Logic) ---
@@ -102,4 +105,5 @@ class NarratorAgent:
             response = self.model.generate_content(prompt)
             return response.text.strip()
         except Exception as e:
-            return f"Error from Gemini: {str(e)}"
+            logger.error(f"Narrator failed: {e}")
+            return f"Error generation narrative: {str(e)}"

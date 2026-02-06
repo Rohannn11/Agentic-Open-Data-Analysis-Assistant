@@ -1,34 +1,36 @@
-# ... Imports ...
-from orchestrator.agents.planner import PlannerAgent # Smart Planner
+from orchestrator.agents.planner import PlannerAgent
 from orchestrator.agents.fetcher import FetcherAgent
 from orchestrator.agents.analyst import AnalystAgent
 from orchestrator.agents.narrator import NarratorAgent
-from orchestrator.logger import get_logger # <--- NEW IMPORT
+from orchestrator.logger import get_logger
 
+# Initialize Logger
 logger = get_logger("Orchestrator")
 
 class AgentOrchestrator:
     def __init__(self):
-        # We REMOVED self.router because Planner now does the thinking
+        logger.info("Initializing Agent Orchestrator...")
         self.planner = PlannerAgent()
         self.fetcher = FetcherAgent()
         self.analyst = AnalystAgent()
         self.narrator = NarratorAgent()
+        logger.info("All agents initialized successfully.")
 
-def run_pipeline(self, user_query: str):
-        logger.info(f"Starting pipeline for query: {user_query}")
+    def run_pipeline(self, user_query: str):
+        logger.info(f"Received Query: {user_query}")
         
         try:
             # 1. Planning
             plan = self.planner.create_plan(user_query)
-            logger.info(f"Plan created: Source={plan.source}, Countries={plan.target_countries}")
+            logger.info(f"Plan Created | Source: {plan.source} | Targets: {plan.target_countries}")
             
             # 2. Fetching
             raw_data_list = self.fetcher.execute_plan(plan)
-            logger.info(f"Fetching complete. Retrieved {len(raw_data_list)} datasets.")
+            logger.info(f"Fetching Complete | Datasets Retrieved: {len(raw_data_list)}")
             
             # 3. Analysis
             stats = self.analyst.analyze(raw_data_list)
+            logger.info(f"Analysis Complete | Trend: {stats.trend_direction}")
             
             # 4. Narration
             narrative = self.narrator.summarize(
@@ -36,8 +38,7 @@ def run_pipeline(self, user_query: str):
                 indicator=plan.target_indicators,
                 stats=stats.model_dump()
             )
-            
-            logger.info("Pipeline executed successfully.")
+            logger.info("Narration Generated.")
             
             return {
                 "type": "success",
@@ -48,5 +49,5 @@ def run_pipeline(self, user_query: str):
                 }
             }
         except Exception as e:
-            logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
+            logger.error(f"Pipeline Critical Failure: {str(e)}", exc_info=True)
             return {"type": "error", "message": str(e)}
